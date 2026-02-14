@@ -33,8 +33,8 @@ export class PrestamosService {
     const usuario = this.usuariosService.getUsuarios().find(u => u.id === userId);
     const libro = this.librosService.getLibros().find(l => l.id === libroId);
 
-    if (!usuario || !libro || !libro.disponible) {
-      return 'Error: Usuario o libro no valido';
+    if (!usuario || !libro || libro.cantidad <= 0) {
+      return 'Error: Usuario no valido o libro sin ejemplares disponibles';
     }
 
     const prestamosActivos = this.prestamos.filter(p => p.usuario.id === userId).length;

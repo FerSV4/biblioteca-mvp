@@ -15,6 +15,7 @@ import { LibrosService, Libro } from '../servicios/libros.service';
       <input [(ngModel)]="nuevoAnio" type="number" placeholder="Año">
       <input [(ngModel)]="nuevaCategoria" placeholder="Categoría">
       <input [(ngModel)]="nuevoCodigo" placeholder="Código de inventario">
+      <input [(ngModel)]="nuevaCantidad" type="number" placeholder="Ejemplares">
       <button (click)="registrarLibro()">Registrar Libro</button>
     </div>
 
@@ -34,6 +35,7 @@ export class LibrosComponent {
   nuevoAnio = '';
   nuevaCategoria = '';
   nuevoCodigo = '';
+  nuevaCantidad = '';
   mensajeError = '';
   mensajeExito = '';
 
@@ -45,8 +47,14 @@ export class LibrosComponent {
 
     try {
       const anioNum = parseInt(this.nuevoAnio);
-      if (!this.nuevoTitulo || !this.nuevoAutor || !this.nuevoAnio || !this.nuevaCategoria || !this.nuevoCodigo) {
+      const cantNum = parseInt(this.nuevaCantidad);
+
+      if (!this.nuevoTitulo || !this.nuevoAutor || !this.nuevoAnio || !this.nuevaCategoria || !this.nuevoCodigo || !this.nuevaCantidad) {
         throw new Error('Todos los campos son obligatorios');
+      }
+
+      if (cantNum < 1 || cantNum > 2) {
+        throw new Error('La cantidad debe ser 1 o 2 ejemplares');
       }
 
       const libro = this.librosService.agregarLibro(
@@ -54,14 +62,17 @@ export class LibrosComponent {
         this.nuevoAutor.trim(),
         anioNum,
         this.nuevaCategoria.trim(),
-        this.nuevoCodigo.trim()
+        this.nuevoCodigo.trim(),
+        cantNum
       );
-      this.mensajeExito = `${libro.titulo} - Código: ${libro.codigoInventario}`;
+
+      this.mensajeExito = `${libro.titulo} (${libro.cantidad} copias)`;
       this.nuevoTitulo = '';
       this.nuevoAutor = '';
       this.nuevoAnio = '';
       this.nuevaCategoria = '';
       this.nuevoCodigo = '';
+      this.nuevaCantidad = '';
     } catch (error: any) {
       this.mensajeError = error.message;
     }

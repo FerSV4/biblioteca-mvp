@@ -7,10 +7,10 @@ import { LibrosService, Libro } from '../servicios/libros.service';
   standalone: true,
   imports: [FormsModule],
   template: `
-    <h2>Búsqueda de Libros</h2>
+    <h2>Busqueda de Libros</h2>
     
     <div>
-      <input [(ngModel)]="terminoBusqueda" placeholder="Buscar por título, autor o categoría" (keyup.enter)="buscar()">
+      <input [(ngModel)]="terminoBusqueda" placeholder="Buscar por titulo, autor o categoria" (keyup.enter)="buscar()">
       <button (click)="buscar()">Buscar</button>
       <button (click)="limpiar()">Limpiar</button>
     </div>
@@ -22,8 +22,9 @@ import { LibrosService, Libro } from '../servicios/libros.service';
           @for (libro of librosEncontrados; track libro.id) {
             <li>
               {{libro.titulo}} - {{libro.autor}} ({{libro.categoria}}) 
-              - {{libro.anio}} - Código: {{libro.codigoInventario}}
-              - {{libro.disponible ? 'Disponible' : 'Prestado'}}
+              - {{libro.anio}} - Codigo: {{libro.codigoInventario}}
+              - {{libro.cantidad > 0 ? 'Disponible' : 'Prestado (Sin stock)'}}
+              - Ejemplares: {{libro.cantidad}}
             </li>
           }
         </ul>
@@ -34,13 +35,15 @@ import { LibrosService, Libro } from '../servicios/libros.service';
   `
 })
 export class BuscarLibrosComponent {
-  todosLibros: Libro[] = [];
   librosEncontrados: Libro[] = [];
   terminoBusqueda = '';
 
   constructor(private librosService: LibrosService) {
-    this.todosLibros = this.librosService.getLibros();
-    this.librosEncontrados = this.todosLibros;
+    this.refrescar();
+  }
+
+  refrescar() {
+    this.librosEncontrados = this.librosService.getLibros();
   }
 
   buscar() {
@@ -49,6 +52,6 @@ export class BuscarLibrosComponent {
 
   limpiar() {
     this.terminoBusqueda = '';
-    this.librosEncontrados = this.todosLibros;
+    this.refrescar();
   }
 }
