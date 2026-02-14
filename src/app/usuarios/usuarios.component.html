@@ -1,0 +1,24 @@
+<h2>Registro de Usuarios</h2>
+
+<div class="formulario">
+  <input 
+    [(ngModel)]="nuevoNombre" 
+    placeholder="Nombre completo"
+    class="input"
+  >
+  <input 
+    [(ngModel)]="nuevoDocumento" 
+    placeholder="Documento"
+    class="input"
+  >
+  <button (click)="agregarUsuario()" class="btn">Agregar Usuario</button>
+</div>
+
+<div class="lista">
+  <h3>Usuarios registrados:</h3>
+  <ul>
+    <li *ngFor="let usuario of usuarios">
+      {{usuario.nombre}} ({{usuario.documento}})
+    </li>
+  </ul>
+</div>
