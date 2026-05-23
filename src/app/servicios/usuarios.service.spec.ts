@@ -37,4 +37,11 @@ describe('UsuariosService', () => {
   it('instancia', () => {
     expect(service).toBeTruthy();
   });
+  // 2. Obtener
+  it('getUsuarios', async () => {
+    const usuarios = await service.getUsuarios();
+    expect(usuarios.length).toBe(1);
+    expect(usuarios[0].nombre).toBe('Juan');
+    expect(mockSupabaseService.supabase.from).toHaveBeenCalledWith('usuarios');
+  });
 });
