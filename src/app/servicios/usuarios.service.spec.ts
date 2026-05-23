@@ -51,4 +51,59 @@ describe('UsuariosService', () => {
     expect(nuevoUsuario.documento).toBe('456');
     expect(mockSupabaseService.supabase.from).toHaveBeenCalledWith('usuarios');
   });
+  // 4. Error CI
+  it('err 23505', async () => {
+    mockSupabaseService.supabase.from.and.returnValue({
+      insert: jasmine.createSpy('insert').and.returnValue({
+        select: jasmine.createSpy('select').and.returnValue({
+          single: jasmine.createSpy('single').and.returnValue(
+            Promise.resolve({ data: null, error: { code: '23505' } })
+          )
+        })
+      })
+    });
+
+    try {
+      await service.agregarUsuario('Pedro', '123', 'pedro@ucb.edu.bo');
+      fail();
+    } catch (error: any) {
+      expect(error.message).toBe('Usuario ya existente con ese CI 123');
+    }
+  });
+
+  // 5. Error select
+  it('err select', async () => {
+    mockSupabaseService.supabase.from.and.returnValue({
+      select: jasmine.createSpy('select').and.returnValue(
+        Promise.resolve({ data: null, error: new Error('DB') })
+      )
+    });
+
+    try {
+      await service.getUsuarios();
+      fail();
+    } catch (error: any) {
+      expect(error.message).toBe('DB');
+    }
+  });
+
+  // 6. Error insert
+  it('err insert', async () => {
+    mockSupabaseService.supabase.from.and.returnValue({
+      insert: jasmine.createSpy('insert').and.returnValue({
+        select: jasmine.createSpy('select').and.returnValue({
+          single: jasmine.createSpy('single').and.returnValue(
+            Promise.resolve({ data: null, error: new Error('DB') })
+          )
+        })
+      })
+    });
+
+    try {
+      await service.agregarUsuario('Carlos', '999', 'carlos@ucb.edu.bo');
+      fail();
+    } catch (error: any) {
+      expect(error.message).toBe('DB');
+    }
+  });
 });
