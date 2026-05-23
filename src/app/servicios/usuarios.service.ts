@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { SupabaseService } from './supabase.service';
 
 export interface Usuario {
   id: number;
@@ -11,25 +12,25 @@ export interface Usuario {
   providedIn: 'root'
 })
 export class UsuariosService {
-  private usuarios: Usuario[] = [];
+  constructor(private supabase: SupabaseService) {}
 
-  getUsuarios(): Usuario[] {
-    return [...this.usuarios];
+  async getUsuarios(): Promise<Usuario[]> {
+    const { data, error } = await this.supabase.supabase.from('usuarios').select('*');
+    if (error) throw error;
+    return data as Usuario[];
   }
 
-  agregarUsuario(nombre: string, documento: string, contacto: string): Usuario {
-    const usuarioExistente = this.usuarios.find(u => u.documento === documento);
-    if (usuarioExistente) {
-      throw new Error('Usuario ya existente con ese CI: ' + documento);
-    }
+  async agregarUsuario(nombre: string, documento: string, contacto: string): Promise<Usuario> {
+    const { data, error } = await this.supabase.supabase
+      .from('usuarios')
+      .insert([{ nombre, documento, contacto }])
+      .select()
+      .single();
 
-    const nuevoUsuario: Usuario = {
-      id: this.usuarios.length + 1,
-      nombre,
-      documento,
-      contacto
-    };
-    this.usuarios.push(nuevoUsuario);
-    return nuevoUsuario;
+    if (error) {
+      if (error.code === '23505') throw new Error('Usuario ya existente con ese CI: ' + documento);
+      throw error;
+    }
+    return data as Usuario;
   }
 }

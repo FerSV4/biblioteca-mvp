@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UsuariosService, Usuario } from '../servicios/usuarios.service';
 
@@ -31,27 +31,29 @@ import { UsuariosService, Usuario } from '../servicios/usuarios.service';
     </div>
   `
 })
-export class UsuariosComponent {
+export class UsuariosComponent implements OnInit {
   usuarios: Usuario[] = [];
   nuevoNombre = '';
   nuevoDocumento = '';
   nuevoContacto = '';
   mensajeError = '';
 
-  constructor(private usuariosService: UsuariosService) {
-    this.usuarios = this.usuariosService.getUsuarios();
+  constructor(private usuariosService: UsuariosService) {}
+
+  async ngOnInit() {
+    this.usuarios = await this.usuariosService.getUsuarios();
   }
 
-  registrarUsuario() {
+  async registrarUsuario() {
     this.mensajeError = '';
     
     try {
-      const usuario = this.usuariosService.agregarUsuario(
+      await this.usuariosService.agregarUsuario(
         this.nuevoNombre.trim(),
         this.nuevoDocumento.trim(),
         this.nuevoContacto.trim()
       );
-      this.usuarios = this.usuariosService.getUsuarios();
+      this.usuarios = await this.usuariosService.getUsuarios();
       this.nuevoNombre = '';
       this.nuevoDocumento = '';
       this.nuevoContacto = '';

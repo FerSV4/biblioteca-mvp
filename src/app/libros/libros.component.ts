@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { LibrosService, Libro } from '../servicios/libros.service';
+import { LibrosService } from '../servicios/libros.service';
 
 @Component({
   selector: 'app-libros',
@@ -39,9 +39,9 @@ export class LibrosComponent {
   mensajeError = '';
   mensajeExito = '';
 
-  constructor(private librosService: LibrosService) {}
+  private librosService = inject(LibrosService);
 
-  registrarLibro() {
+  async registrarLibro() {
     this.mensajeError = '';
     this.mensajeExito = '';
 
@@ -57,7 +57,7 @@ export class LibrosComponent {
         throw new Error('La cantidad debe ser 1 o 2 ejemplares');
       }
 
-      const libro = this.librosService.agregarLibro(
+      const libro = await this.librosService.agregarLibro(
         this.nuevoTitulo.trim(),
         this.nuevoAutor.trim(),
         anioNum,
@@ -73,7 +73,8 @@ export class LibrosComponent {
       this.nuevaCategoria = '';
       this.nuevoCodigo = '';
       this.nuevaCantidad = '';
-    } catch (error: any) {
+    } catch (e) {
+      const error = e as Error;
       this.mensajeError = error.message;
     }
   }

@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 import { UsuariosComponent } from './usuarios/usuarios.component';
 import { LibrosComponent } from './libros/libros.component';
 import { BuscarLibrosComponent } from './buscar-libros/buscar-libros.component';
-import { LibrosDisponiblesComponent } from './libros-disponibles/libros-disponibles.component';
 import { PrestamosComponent } from './prestamos/prestamos.component';
 
 

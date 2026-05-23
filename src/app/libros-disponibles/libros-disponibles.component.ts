@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { LibrosService, Libro } from '../servicios/libros.service';
 
 @Component({
@@ -25,10 +25,12 @@ import { LibrosService, Libro } from '../servicios/libros.service';
     </div>
   `
 })
-export class LibrosDisponiblesComponent {
+export class LibrosDisponiblesComponent implements OnInit {
   librosDisponibles: Libro[] = [];
+  
+  private librosService = inject(LibrosService);
 
-  constructor(private librosService: LibrosService) {
-    this.librosDisponibles = this.librosService.getLibrosDisponibles();
+  async ngOnInit() {
+    this.librosDisponibles = await this.librosService.getLibrosDisponibles();
   }
 }

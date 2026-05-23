@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { UsuariosService, Usuario } from '../servicios/usuarios.service';
@@ -41,46 +41,46 @@ import { PrestamosService, Prestamo } from '../servicios/prestamos.service';
         <ul>
           @for (p of prestamos; track p.id) {
             <li>
-              Usuario: {{p.usuario.nombre}} | 
-              Libro: {{p.libro.titulo}} | 
+              Usuario: {{p.usuarios?.nombre}} | 
+              Libro: {{p.libros?.titulo}} | 
               Prestado: {{p.fechaPrestamo | date:'shortDate'}} | 
               Devolucion: {{p.fechaDevolucion | date:'shortDate'}}
             </li>
           }
         </ul>
       } @else {
-        <p>No hay app-prestamos</p>
+        <p>No hay prestamos activos</p>
       }
     </div>
   `
 })
-export class PrestamosComponent {
+export class PrestamosComponent implements OnInit {
   usuarios: Usuario[] = [];
   librosDisponibles: Libro[] = [];
   prestamos: Prestamo[] = [];
   usuarioSeleccionado = 0;
   libroSeleccionado = 0;
 
-  constructor(
-    private usuariosService: UsuariosService,
-    private librosService: LibrosService,
-    private prestamosService: PrestamosService
-  ) {
+  private usuariosService = inject(UsuariosService);
+  private librosService = inject(LibrosService);
+  private prestamosService = inject(PrestamosService);
+
+  ngOnInit() {
     this.refrescarDatos();
   }
 
-  refrescarDatos() {
-    this.usuarios = this.usuariosService.getUsuarios();
-    this.librosDisponibles = this.librosService.getLibrosDisponibles();
-    this.prestamos = this.prestamosService.getPrestamos();
+  async refrescarDatos() {
+    this.usuarios = await this.usuariosService.getUsuarios();
+    this.librosDisponibles = await this.librosService.getLibrosDisponibles();
+    this.prestamos = await this.prestamosService.getPrestamos();
   }
 
   puedePrestar(): boolean {
     return this.usuarioSeleccionado > 0 && this.libroSeleccionado > 0;
   }
 
-  realizarPrestamo() {
-    const error = this.prestamosService.realizarPrestamo(
+  async realizarPrestamo() {
+    const error = await this.prestamosService.realizarPrestamo(
       this.usuarioSeleccionado,
       this.libroSeleccionado
     );

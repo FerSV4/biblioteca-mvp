@@ -1,61 +1,68 @@
 import { Injectable } from '@angular/core';
-import { UsuariosService, Usuario } from './usuarios.service';
-import { LibrosService, Libro } from './libros.service';
+import { SupabaseService } from './supabase.service';
+import { Usuario } from './usuarios.service';
+import { Libro } from './libros.service';
 
 export interface Prestamo {
   id: number;
-  usuario: Usuario;
-  libro: Libro;
+  usuarioId: number;
+  libroId: number;
   fechaPrestamo: Date;
   fechaDevolucion: Date;
+  usuarios?: Usuario;
+  libros?: Libro;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class PrestamosService {
-  private prestamos: Prestamo[] = [];
   private LIMITE_PRESTAMOS = 3;
 
-  constructor(
-    private usuariosService: UsuariosService,
-    private librosService: LibrosService
-  ) {}
+  constructor(private supabase: SupabaseService) {}
 
-  getPrestamos(): Prestamo[] {
-    return [...this.prestamos];
+  async getPrestamos(): Promise<Prestamo[]> {
+    const { data, error } = await this.supabase.supabase
+      .from('prestamos')
+      .select('*, usuarios(*), libros(*)');
+      
+    if (error) throw error;
+    return data as Prestamo[];
   }
 
-  realizarPrestamo(uId: number, lId: number): string | null {
-    const userId = Number(uId);
-    const libroId = Number(lId);
+  async realizarPrestamo(uId: number, lId: number): Promise<string | null> {
+    // 1. Verificar libro
+    const { data: libro } = await this.supabase.supabase.from('libros').select('*').eq('id', lId).single();
+    if (!libro || libro.cantidad <= 0) return 'Error: Libro no válido o sin ejemplares';
 
-    const usuario = this.usuariosService.getUsuarios().find(u => u.id === userId);
-    const libro = this.librosService.getLibros().find(l => l.id === libroId);
+    // 2. Verificar límite de préstamos del usuario
+    const { count } = await this.supabase.supabase
+      .from('prestamos')
+      .select('*', { count: 'exact', head: true })
+      .eq('usuarioId', uId);
 
-    if (!usuario || !libro || libro.cantidad <= 0) {
-      return 'Error: Usuario no valido o libro sin ejemplares disponibles';
-    }
-
-    const prestamosActivos = this.prestamos.filter(p => p.usuario.id === userId).length;
-    if (prestamosActivos >= this.LIMITE_PRESTAMOS) {
-      return 'Rechazado: El usuario supero el limite de 3 prestamos';
+    if (count !== null && count >= this.LIMITE_PRESTAMOS) {
+      return 'Rechazado: El usuario superó el límite de 3 préstamos';
     }
 
     const hoy = new Date();
     const devolucion = new Date();
     devolucion.setDate(hoy.getDate() + 14);
 
-    const nuevoPrestamo: Prestamo = {
-      id: this.prestamos.length + 1,
-      usuario,
-      libro,
-      fechaPrestamo: hoy,
-      fechaDevolucion: devolucion
-    };
+    const { error: insertError } = await this.supabase.supabase.from('prestamos').insert([{
+      usuarioId: uId,
+      libroId: lId,
+      fechaPrestamo: hoy.toISOString(),
+      fechaDevolucion: devolucion.toISOString()
+    }]);
 
-    this.prestamos.push(nuevoPrestamo);
-    this.librosService.prestarLibro(libroId);
+    if (insertError) return 'Error al registrar el préstamo';
+
+    await this.supabase.supabase
+      .from('libros')
+      .update({ cantidad: libro.cantidad - 1 })
+      .eq('id', lId);
+
     return null;
   }
 }

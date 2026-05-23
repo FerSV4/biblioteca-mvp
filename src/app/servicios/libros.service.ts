@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { SupabaseService } from './supabase.service';
 
 export interface Libro {
   id: number;
@@ -14,57 +15,44 @@ export interface Libro {
   providedIn: 'root'
 })
 export class LibrosService {
-  private libros: Libro[] = [
-    { id: 1, titulo: 'Arquitectura limpia', autor: 'Daniel Quino', anio: 2008, categoria: 'Ingenieria de Software', codigoInventario: 'INV-001', cantidad: 2 },
-    { id: 2, titulo: 'Angular', autor: 'Alguien', anio: 2018, categoria: 'Desarrollo Web', codigoInventario: 'INV-002', cantidad: 1 },
-    { id: 3, titulo: 'React', autor: 'Alguien 2', anio: 2010, categoria: 'Programacion', codigoInventario: 'INV-003', cantidad: 2 },
-    { id: 4, titulo: 'Don Quijote de la Mancha', autor: 'Miguel de Cervantes', anio: 1605, categoria: 'Literatura', codigoInventario: 'INV-004', cantidad: 1 },
-    { id: 5, titulo: 'Vanilla JS', autor: 'JJ', anio: 2025, categoria: 'App web', codigoInventario: 'INV-005', cantidad: 2 }
-  ];
+  constructor(private supabase: SupabaseService) {}
 
-  getLibros(): Libro[] {
-    return [...this.libros];
+  async getLibros(): Promise<Libro[]> {
+    const { data, error } = await this.supabase.supabase.from('libros').select('*');
+    if (error) throw error;
+    return data as Libro[];
   }
 
-  getLibrosDisponibles(): Libro[] {
-    return this.libros.filter(l => l.cantidad > 0);
+  async getLibrosDisponibles(): Promise<Libro[]> {
+    const { data, error } = await this.supabase.supabase.from('libros').select('*').gt('cantidad', 0);
+    if (error) throw error;
+    return data as Libro[];
   }
 
-  agregarLibro(titulo: string, autor: string, anio: number, categoria: string, codigoInventario: string, cantidad: number): Libro {
-    const existe = this.libros.find(l => l.codigoInventario === codigoInventario);
-    if (existe) {
-      throw new Error('Este codigo ya existe, ingrese otro');
+  async agregarLibro(titulo: string, autor: string, anio: number, categoria: string, codigoInventario: string, cantidad: number): Promise<Libro> {
+    const { data, error } = await this.supabase.supabase
+      .from('libros')
+      .insert([{ titulo, autor, anio, categoria, codigoInventario, cantidad }])
+      .select()
+      .single();
+
+    if (error) {
+       if (error.code === '23505') throw new Error('Este codigo ya existe, ingrese otro');
+       throw error;
     }
-
-    const nuevoLibro: Libro = {
-      id: this.libros.length + 1,
-      titulo,
-      autor,
-      anio,
-      categoria,
-      codigoInventario,
-      cantidad
-    };
-    this.libros.push(nuevoLibro);
-    return nuevoLibro;
+    return data as Libro;
   }
 
-  buscarLibros(termino: string): Libro[] {
-    if (!termino.trim()) {
-      return this.getLibros();
-    }
-    const search = termino.toLowerCase();
-    return this.libros.filter(l =>
-      l.titulo.toLowerCase().includes(search) ||
-      l.autor.toLowerCase().includes(search) ||
-      l.categoria.toLowerCase().includes(search)
-    );
-  }
-
-  prestarLibro(id: number): void {
-    const libro = this.libros.find(l => l.id === id);
-    if (libro && libro.cantidad > 0) {
-      libro.cantidad--;
-    }
+  async buscarLibros(termino: string): Promise<Libro[]> {
+    if (!termino.trim()) return this.getLibros();
+    
+    const search = `%${termino}%`;
+    const { data, error } = await this.supabase.supabase
+      .from('libros')
+      .select('*')
+      .or(`titulo.ilike.${search},autor.ilike.${search},categoria.ilike.${search}`);
+      
+    if (error) throw error;
+    return data as Libro[];
   }
 }

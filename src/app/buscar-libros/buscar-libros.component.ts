@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LibrosService, Libro } from '../servicios/libros.service';
 
@@ -42,12 +42,15 @@ export class BuscarLibrosComponent {
     this.refrescar();
   }
 
-  refrescar() {
-    this.librosEncontrados = this.librosService.getLibros();
+
+  //   private librosService = inject(LibrosService);
+
+  async refrescar() {
+    this.librosEncontrados = await this.librosService.getLibros();
   }
 
-  buscar() {
-    this.librosEncontrados = this.librosService.buscarLibros(this.terminoBusqueda);
+  async buscar() {
+    this.librosEncontrados = await this.librosService.buscarLibros(this.terminoBusqueda);
   }
 
   limpiar() {
