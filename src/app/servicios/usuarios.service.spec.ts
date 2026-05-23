@@ -44,4 +44,11 @@ describe('UsuariosService', () => {
     expect(usuarios[0].nombre).toBe('Juan');
     expect(mockSupabaseService.supabase.from).toHaveBeenCalledWith('usuarios');
   });
+  // 3. Agregar
+  it('agregarUsuario', async () => {
+    const nuevoUsuario = await service.agregarUsuario('Ana', '456', 'ana@ucb.edu.bo');
+    expect(nuevoUsuario.nombre).toBe('Ana');
+    expect(nuevoUsuario.documento).toBe('456');
+    expect(mockSupabaseService.supabase.from).toHaveBeenCalledWith('usuarios');
+  });
 });
