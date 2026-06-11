@@ -35,7 +35,10 @@ export class UsuariosService {
   }
 
   async actualizarUsuario(usuarioId: number, datosFormulario: any): Promise<string | null> {
-    // Aqui pues la funcion esta vacia por la prueba del TDD.
+    // Ahora la funcion tiene la val. basica para el tdd
+    if (datosFormulario.correo === '   ') {
+      return 'No se puede: el correo es obligatorio...';
+    }
     return null;
   }
 }
