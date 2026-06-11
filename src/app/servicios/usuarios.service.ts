@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from './supabase.service';
 
 export interface Usuario {
@@ -12,7 +12,7 @@ export interface Usuario {
   providedIn: 'root'
 })
 export class UsuariosService {
-  constructor(private supabase: SupabaseService) {}
+  private supabase = inject(SupabaseService);
 
   async getUsuarios(): Promise<Usuario[]> {
     const { data, error } = await this.supabase.supabase.from('usuarios').select('*');
