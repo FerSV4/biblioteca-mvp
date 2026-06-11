@@ -32,6 +32,6 @@ describe('PU de prestamos, donde el prestamo no existe', () => {
   it('se rechaza como el prestamo no exista', async () => {
     const resultado = await service.renovarPrestamo(999);
     
-    expect(resultado).toBe('el prestamo no existe...');
+    expect(resultado).toBe('El prestamo no existe...');
   });
 });

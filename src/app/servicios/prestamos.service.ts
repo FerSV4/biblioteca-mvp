@@ -66,8 +66,19 @@ export class PrestamosService {
     return null;
   }
   
-  //por ahora lo cree vacio para el tdd que se pide
+  //Esta ya es la renovacion del prestamo...--
   async renovarPrestamo(prestamoId: number): Promise<string | null> {
-    return null; 
+    //Aqui ya se busca el prestamo de vrd...
+    const { data: prestamo } = await this.supabase.supabase
+      .from('prestamos')
+      .select('*')
+      .eq('id', prestamoId)
+      .single();
+
+    if (!prestamo) {
+      return 'El prestamo no existe...';
+    }
+
+    return null;
   }
 }
