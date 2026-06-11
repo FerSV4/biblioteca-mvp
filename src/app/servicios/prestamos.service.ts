@@ -83,8 +83,10 @@ export class PrestamosService {
   }
 
   async registrarDevolucion(prestamoId: number, estadoActual: string): Promise<string | null> {
-    // ahora ya no esta vacio, se verifica el estado de devuelto.
-    if (estadoActual === 'Devuelto') {
+    // En esta version refactor, se valida el estado igualmente, pero con trim y el manejo de minusculas para evitar errores.
+    // aun el parametro prestamoid se tiene como unused como parte del tdd.
+    const estadoLibroCorregido = estadoActual ? estadoActual.trim().toLowerCase() : '';
+    if (estadoLibroCorregido === 'devuelto') {
       return 'No se puede: el libro ya esta marcado como devuelto';
     }
     
