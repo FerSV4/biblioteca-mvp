@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LibrosService, Libro } from '../servicios/libros.service';
 
@@ -34,16 +34,16 @@ import { LibrosService, Libro } from '../servicios/libros.service';
     </div>
   `
 })
-export class BuscarLibrosComponent {
+export class BuscarLibrosComponent implements OnInit{
   librosEncontrados: Libro[] = [];
   terminoBusqueda = '';
 
-  constructor(private librosService: LibrosService) {
+  ngOnInit() {
     this.refrescar();
   }
 
 
-  //   private librosService = inject(LibrosService);
+  private librosService = inject(LibrosService);
 
   async refrescar() {
     this.librosEncontrados = await this.librosService.getLibros();
