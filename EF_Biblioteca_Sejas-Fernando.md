@@ -269,8 +269,8 @@ Mínimo 3 nuevos (adicionales a los del EC2).
 | # | Tipo | Commit | Descripción |
 |---|---|---|---|
 | 1 | [Inyeccion de constructores] | [`7a5620f`](https://github.com/FerSV4/biblioteca-mvp/commit/7a5620ff295cc18df5226d6bf3cfbc3557c20f9b) | [Se migro de la forma de inyeccion antigua constructor(private...) a la estandar de angular con inject()] |
-| 2 | [Tipo] | [`b2c3d4e`](https://github.com/usuario/repo/commit/b2c3d4e) | [Antes: X → Después: Y] |
-| 3 | [Tipo] | [`c3d4e5f`](https://github.com/usuario/repo/commit/c3d4e5f) | [Antes: X → Después: Y] |
+| 2 | [Tipado Debil] | [`46d8c05`](https://github.com/FerSV4/biblioteca-mvp/commit/46d8c05e94750f98dc8fdbeaee8ba9e47ac5fdbb) | [Antes se cometia el error de usar any para recibir el error, ahora se lo toma como un unknown, siguiendo las buenas practicas.] |
+| 3 | [Codigo muerto / Mala inicializacion] | [`91d20e9`](https://github.com/FerSV4/biblioteca-mvp/commit/91d20e9f48797defd586f31d613944cd2a164f6f) | [Antes se tenia codigo muerto de inyeccion y de inicializaba mal el constructor con operaciones async, siendo una mala practica, ahora se inicializa con OnInit de angular.] |
 
 ### Detalle — Smell 1: [Inyeccion de constructores]
 
@@ -290,15 +290,75 @@ export class UsuariosService {
 
 ---
 
-### Detalle — Smell 2: [Tipo]
+### Detalle — Smell 2: [Tipado Debil]
 
-> Mismo formato.
+
+**Código antes:**
+```csharp / typescript
+this.nuevoNombre = '';
+      this.nuevoDocumento = '';
+      this.nuevoContacto = '';
+    } catch (error: any) {
+      this.mensajeError = error.message;
+    }
+  }
+}
+```
+
+**Código después:**
+```csharp / typescript
+this.nuevoDocumento = '';
+      this.nuevoContacto = '';
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        this.mensajeError = error.message;
+      } else {
+        this.mensajeError = 'Error x';
+      }
+    }
+```
 
 ---
 
-### Detalle — Smell 3: [Tipo]
+### Detalle — Smell 3: [Codigo muerto / Mala inicializacion]
 
-> Mismo formato.
+
+**Código antes:**
+```csharp / typescript
+import { Component, inject } from '@angular/core';
+export class BuscarLibrosComponent {
+  librosEncontrados: Libro[] = [];
+  terminoBusqueda = '';
+
+  constructor(private librosService: LibrosService) {
+    this.refrescar();
+  }
+
+
+  //   private librosService = inject(LibrosService);
+
+  async refrescar() {
+    this.librosEncontrados = await this.librosService.getLibros();
+  }
+
+```
+
+**Código después:**
+```csharp / typescript
+import { Component, inject, OnInit } from '@angular/core';
+export class BuscarLibrosComponent implements OnInit{
+  librosEncontrados: Libro[] = [];
+  terminoBusqueda = '';
+  private librosService = inject(LibrosService);
+  ngOnInit() {
+    this.refrescar();
+  }
+
+  
+  async refrescar() {
+    this.librosEncontrados = await this.librosService.getLibros();
+  }
+```
 
 ---
 
@@ -308,8 +368,7 @@ export class UsuariosService {
 |---|---|---|---|---|
 | 1 | [HU-08 Renovar préstamo de libro.] | [Dado un ID de prestamos por libro sin reserva, devuelve error de no se encuentra.] | [se rechaza como el prestamo no exista] | [`ac08f73`](https://github.com/FerSV4/biblioteca-mvp/commit/ac08f73b07ec26bf11bde8cdccc1f75886ee656d) |
 | 2 | [HU-02 Actualización de datos de usuario] | [Dado que un campo requerido está vacío o es inválido (correo), cuando intento guardar, entonces el sistema me muestra un mensaje de error e impide el update.] | [debe bloquear la update si el correo se envia vacio o con espacios] | [`548451e`](https://github.com/FerSV4/biblioteca-mvp/commit/548451efd4c7e52edde52b992d1fa93c46ae4bb1) |
-| 3 | [HU-07 Ver mis préstamos activos
-] | [Dado que se devuelve el libro, ya ese libro tiene estado devuelto y no debe poder ser re devuelto.] | [debe rechazar la devolucion si el prestamo ya figura como devuelto] | [`28a5ec0`](https://github.com/FerSV4/biblioteca-mvp/commit/28a5ec0ed31186d9c992acb63f42b9e955d179a8) |
+| 3 | [HU-07 Ver mis préstamos activos] | [Dado que se devuelve el libro, ya ese libro tiene estado devuelto y no debe poder ser re devuelto.] | [debe rechazar la devolucion si el prestamo ya figura como devuelto] | [`28a5ec0`](https://github.com/FerSV4/biblioteca-mvp/commit/28a5ec0ed31186d9c992acb63f42b9e955d179a8) |
 
 ### Cadena 1 — [HU-08 Renovar prestamo]
 
