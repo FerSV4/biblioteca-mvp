@@ -33,4 +33,9 @@ export class UsuariosService {
     }
     return data as Usuario;
   }
+
+  async actualizarUsuario(usuarioId: number, datosFormulario: any): Promise<string | null> {
+    // Aqui pues la funcion esta vacia por la prueba del TDD.
+    return null;
+  }
 }

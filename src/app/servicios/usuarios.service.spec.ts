@@ -106,4 +106,12 @@ describe('UsuariosService', () => {
       expect(error.message).toBe('DB');
     }
   });
+  it('debe bloquear la update si el correo se envia vacio o con espacios', async () => {
+    // Act:: Se mockea un update con un correo vacio, siendo un error
+    const datosFormulario = { telefono: '33112343', correo: '   ' };
+    const resultado = await service.actualizarUsuario(14, datosFormulario);
+    
+    // Assert
+    expect(resultado).toBe('No se puede: el correo es obligatorio...');
+  });
 });
