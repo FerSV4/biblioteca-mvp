@@ -66,16 +66,16 @@ export class PrestamosService {
     return null;
   }
   
-  //Esta ya es la renovacion del prestamo...--
+  //Esta ya es la renovacion del prestamo, ya refactor...--
   async renovarPrestamo(prestamoId: number): Promise<string | null> {
-    //Aqui ya se busca el prestamo de vrd...
-    const { data: prestamo } = await this.supabase.supabase
+    //Aqui ya se busca el prestamo de vrd (El cambio es minimo, solo fue especificar lo que se tenia que buscar de la db)
+    const { data: prestamoEspecifico } = await this.supabase.supabase
       .from('prestamos')
-      .select('*')
+      .select('id, fechaDevolucion')
       .eq('id', prestamoId)
       .single();
 
-    if (!prestamo) {
+    if (!prestamoEspecifico) {
       return 'El prestamo no existe...';
     }
 
