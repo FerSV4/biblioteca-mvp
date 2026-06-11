@@ -65,4 +65,9 @@ export class PrestamosService {
 
     return null;
   }
+  
+  //por ahora lo cree vacio para el tdd que se pide
+  async renovarPrestamo(prestamoId: number): Promise<string | null> {
+    return null; 
+  }
 }

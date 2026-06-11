@@ -67,7 +67,7 @@ describe('UsuariosService', () => {
       await service.agregarUsuario('Pedro', '123', 'pedro@ucb.edu.bo');
       fail();
     } catch (error: any) {
-      expect(error.message).toBe('Usuario ya existente con ese CI 123');
+      expect(error.message).toBe('Usuario ya existente con ese CI: 123');
     }
   });
 
