@@ -35,3 +35,25 @@ describe('PU de prestamos, donde el prestamo no existe', () => {
     expect(resultado).toBe('El prestamo no existe...');
   });
 });
+
+describe('PU de prestamos, devolucion de libro', () => {
+  let service: PrestamosService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        PrestamosService,
+        { provide: SupabaseService, useValue: { supabase: {} } } 
+      ]
+    });
+    service = TestBed.inject(PrestamosService);
+  });
+
+  it('debe rechazar la devolucion si el prestamo ya figura como devuelto', async () => {
+    // Act:: mockeo como si el encargado quiere marcar un libro devuelto, de manera duplicada
+    const resultado = await service.registrarDevolucion(45, 'Devuelto');
+    
+    // Ass
+    expect(resultado).toBe('No se puede: el libro ya esta marcado como devuelto');
+  });
+});

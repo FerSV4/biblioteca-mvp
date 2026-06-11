@@ -81,4 +81,9 @@ export class PrestamosService {
 
     return null;
   }
+
+  async registrarDevolucion(prestamoId: number, estadoActual: string): Promise<string | null> {
+    // Funcion vacia como parte del tdd rojo
+    return null;
+  }
 }
