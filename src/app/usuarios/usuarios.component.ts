@@ -57,8 +57,12 @@ export class UsuariosComponent implements OnInit {
       this.nuevoNombre = '';
       this.nuevoDocumento = '';
       this.nuevoContacto = '';
-    } catch (error: any) {
-      this.mensajeError = error.message;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        this.mensajeError = error.message;
+      } else {
+        this.mensajeError = 'Error x';
+      }
     }
   }
 }
