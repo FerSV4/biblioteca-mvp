@@ -34,9 +34,9 @@ export class UsuariosService {
     return data as Usuario;
   }
 
-  async actualizarUsuario(usuarioId: number, datosFormulario: any): Promise<string | null> {
-    // Ahora la funcion tiene la val. basica para el tdd
-    if (datosFormulario.correo === '   ') {
+  async actualizarUsuario(usuarioId: number, datosFormulario: { telefono?: string, correo?: string }): Promise<string | null> {
+    // Ahora la funcion tiene la val. basica para el tdd (Version refactor.) aqui ya se valida con el trim y se tipea los parametros a recibir
+    if (!datosFormulario.correo || datosFormulario.correo.trim() === '') {
       return 'No se puede: el correo es obligatorio...';
     }
     return null;
