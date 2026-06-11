@@ -83,7 +83,11 @@ export class PrestamosService {
   }
 
   async registrarDevolucion(prestamoId: number, estadoActual: string): Promise<string | null> {
-    // Funcion vacia como parte del tdd rojo
+    // ahora ya no esta vacio, se verifica el estado de devuelto.
+    if (estadoActual === 'Devuelto') {
+      return 'No se puede: el libro ya esta marcado como devuelto';
+    }
+    
     return null;
   }
 }
